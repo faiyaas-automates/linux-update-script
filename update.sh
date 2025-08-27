@@ -6,22 +6,45 @@ std_err=/var/log/update_error.log
 
 echo "updating system ... :)"
 
-if grep -q "nobara" $os_info
-then
-	sudo dnf update -y && sudo dnf upgrade -y 1 >> $std_op 2 >> $std_err
-	echo "error and success log files are at /var/log/"
+check_status(){
 
-else
-	if grep -q "debian" $os_info
+	if [ $? -ne 0 ]
 	then
-		sudo apt update -y && sudo apt upgrade -y 1 >> $std_op 2 >> $std_err
-		echo "error and success log files are at /var/log/"
-
+		echo "check error file at $std_err"	
 	else
-		if grep -q "arch" $os_info
-		then 
-			sudo pacman -Syu 1 >> $std_op 2 >> $std_err
-			echo "error and success log files are at /var/log/"
-		fi
+		echo "check success file at $std_op"
 	fi
-fi	
+	
+}
+
+dnf(){
+		sudo dnf update -y && sudo dnf upgrade -y 1 >> $std_op 2 >> $std_err
+		check_status
+		echo "error and success log files are at /var/log/"
+}
+
+apt(){
+		sudo apt update -y && sudo apt upgrade -y 1 >> $std_op 2 >> $std_err
+		check_status
+		echo "error and success log files are at /var/log/"
+}
+
+pacman(){
+		sudo pacman -Syu 1 >> $std_op 2 >> $std_err
+		check_status
+		echo "error and success log files are at /var/log/"
+}
+
+if grep -q "nobara" $os_info || grep -q "fedora" $os_info
+then
+	dnf
+fi
+
+if grep -q "debian" $os_info
+	apt
+fi
+
+if grep -q "arch" $os_info
+then
+	pacman
+fi
