@@ -18,21 +18,38 @@ check_status(){
 }
 
 dnf(){
+		sudo timeshift --create
+		if [ $? -eq 0 ]
+		then
+			sudo dnf install timeshift -y
+		fi
+		sudo timeshift --create
 		sudo dnf update -y && sudo dnf upgrade -y 1 >> $std_op 2 >> $std_err
 		check_status
-		echo "error and success log files are at /var/log/"
+
 }
 
 apt(){
+		sudo timeshift --create
+		if [ $? -eq 0 ]
+		then
+			sudo apt install timeshift -y
+		fi
+		sudo timeshift --create
 		sudo apt update -y && sudo apt upgrade -y 1 >> $std_op 2 >> $std_err
 		check_status
-		echo "error and success log files are at /var/log/"
 }
 
 pacman(){
-		sudo pacman -Syu 1 >> $std_op 2 >> $std_err
+		sudo timeshift --create
+
+		if [ $? -eq 0 ]
+		then
+			sudo pacman install timeshift -y
+		fi
+		sudo timeshift --create
+		sudo pacman -Syu 1>> $std_op 2>> $std_err
 		check_status
-		echo "error and success log files are at /var/log/"
 }
 
 if grep -q "nobara" $os_info || grep -q "fedora" $os_info
